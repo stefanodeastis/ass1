@@ -18,22 +18,34 @@
 """
 import argparse
 import time
+import string
+from collections import Counter
+import numpy as np
+import matplotlib.pyplot as plt
 
-def read(file_path):
+ALPHABET=tuple(string.ascii_lowercase)
+
+def process(file_path):
     """read the book
     """
     print(f'Opening input file {file_path}...')
     with open(file_path, 'r',encoding='utf-8') as input_file:
         text = input_file.read()
-    print(text)
     print('Done.')
+    return text
+
+def print_relatives(occurrency):
+    n=(occurrency).sum()
+    print(n)
+    relatives = occurrency/n
+    for i in range (0,len(ALPHABET)):
+        print(f"la lettera {ALPHABET[i]} ha un'incidenza relativa pari a {relatives[i]} \n")
 
 def plot_histogram():
     """plot the histogram of relative frequences
     """
 
 #https://www.programiz.com/python-programming/file-operation
-
 if __name__ == '__main__':
     start=time.time()
     parser = argparse.ArgumentParser(description='Print some book statistics')
@@ -41,9 +53,28 @@ if __name__ == '__main__':
     parser.add_argument('-r','--read', help='print the book', action='store_true')
     parser.add_argument('-histo','--histogram', help='display a histogram of the frequences ', action='store_true')
     args = parser.parse_args()
+    text=process(args.infile)
+    text=text.lower() #toglie tutte le maiuscole
     if args.read:
-        read(args.infile)
+        print(text)
+    N=len(text)
+    print(N)
+    occurrency=np.zeros(len(ALPHABET))
+    print(type(occurrency))
+
+    for i in range (0,len(text)):
+        for j in range (0,len(ALPHABET)):
+            if text[i]==ALPHABET[j]:
+                occurrency[j] +=1
+                break
+    print(occurrency)
+    plt.bar(ALPHABET,occurrency)
+
+
+
+    print_relatives(occurrency)
     if args.histogram:
         plot_histogram()
     end=time.time()
     print(end-start)
+    plt.show()
