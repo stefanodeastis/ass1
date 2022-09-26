@@ -26,55 +26,54 @@ import matplotlib.pyplot as plt
 ALPHABET=tuple(string.ascii_lowercase)
 
 def process(file_path):
-    """read the book
+    """read the file
     """
     print(f'Opening input file {file_path}...')
     with open(file_path, 'r',encoding='utf-8') as input_file:
-        text = input_file.read()
+        book_text = input_file.read()
     print('Done.')
-    return text
+    return book_text
 
 def print_relatives(occurrency):
-    n=(occurrency).sum()
-    print(n)
-    relatives = occurrency/n
-    for i in range (0,len(ALPHABET)):
-        print(f"la lettera {ALPHABET[i]} ha un'incidenza relativa pari a {relatives[i]} \n")
+    '''print relative freqences
+    '''
+    tot_char=occurrency.sum()
+    print(tot_char)
+    frequences= occurrency/tot_char
+    for i, letter in enumerate(ALPHABET):
+        print(f"la lettera {letter} ha un'incidenza relativa pari a {frequences[i]} \n")
 
-def plot_histogram():
-    """plot the histogram of relative frequences
+def relative_freq(book_text):
+    """compute the relative frequence of each letter of the alphabet
     """
-
+    occurrency=np.zeros(len(ALPHABET))
+    for letter in book_text:
+        for j, alphabet_letter in enumerate(ALPHABET):
+            if letter==alphabet_letter:
+                occurrency[j] +=1
+                break
+    return occurrency
 #https://www.programiz.com/python-programming/file-operation
 if __name__ == '__main__':
+    '''programma principale
+    '''
     start=time.time()
     parser = argparse.ArgumentParser(description='Print some book statistics')
     parser.add_argument('infile', type=str, help='path to the input file')
     parser.add_argument('-r','--read', help='print the book', action='store_true')
-    parser.add_argument('-histo','--histogram', help='display a histogram of the frequences ', action='store_true')
+    parser.add_argument('-histo','--histogram', help='display the histogram', action='store_true')
     args = parser.parse_args()
     text=process(args.infile)
-    text=text.lower() #toglie tutte le maiuscole
     if args.read:
         print(text)
-    N=len(text)
-    print(N)
-    occurrency=np.zeros(len(ALPHABET))
-    print(type(occurrency))
 
-    for i in range (0,len(text)):
-        for j in range (0,len(ALPHABET)):
-            if text[i]==ALPHABET[j]:
-                occurrency[j] +=1
-                break
-    print(occurrency)
-    plt.bar(ALPHABET,occurrency)
+    relatives=relative_freq(text.lower())
 
+    print_relatives(relatives)
 
-
-    print_relatives(occurrency)
     if args.histogram:
-        plot_histogram()
+        plt.bar(ALPHABET,relatives)
     end=time.time()
-    print(end-start)
-    plt.show()
+    print("time elapsed=",end-start)
+    if args.histogram:
+        plt.show()
